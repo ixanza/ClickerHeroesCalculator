@@ -6,21 +6,22 @@
     <head>
         <title>Clicker Heroes Optimizer</title>
         
-        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans">
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans">
         <link rel="stylesheet" type="text/css" href="css/style.css?v=9">
-        <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.1.0/css/bootstrap-slider.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.1.0/css/bootstrap-slider.min.css">
         
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.1.0/bootstrap-slider.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.1.0/bootstrap-slider.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
         <script src="js/decimal.min.js"></script>
         <script src="data/functions.js?v=9"></script>
         <script src="data/model.js?v=9"></script>
         <script src="js/calc.js?v=9"></script>
         <script src="js/utils.js?v=9"></script>
+        
     </head>
     <body>
     <div class="wrapper">
@@ -39,6 +40,9 @@
             <div class="panel panel-primary">
               <header class="panel-heading">Data</header>
               <div class="panel-body">
+                <label>Upload your save file here (Mobile) : </label>
+                <input type="file" style="display:none"id="files" class="inputfile" name="file" />
+				<label class="btn btn-primary" style="float:right"for="files">Upload</label>
                 <label>Paste your game file here:
                 <textarea id="savedata" style="width: 100%; height: 50px" onclick="this.select()" autofocus></textarea></label>
                 <div style="float: right; margin-top: 10px;">
@@ -232,7 +236,55 @@
         </div>
     </div>
 
-    <script language="javascript">
+    <script language="javascript">  
+        
+		$('#files').change(function(evt){
+			var files = evt.target.files;
+			for (var i = 0, f; f = files[i]; i++)
+			{
+				var reader = new FileReader();
+				reader.onload = (function(reader)
+				{
+					return function()
+					{
+						var contents = reader.result;
+						var lines = contents.split('\n');
+						var firstIndex = contents.indexOf('{"');
+						var lastIndex = contents.lastIndexOf('}');
+						var formattedContent = contents.substring(firstIndex,lastIndex+1);
+                        var base64content = btoa(formattedContent);
+                        var result = sprinkle(base64content) + ANTI_CHEAT_CODE + getHash(base64content);
+                        $('#savedata').val(result);
+                        Import();
+					}
+				})(reader);
+				reader.readAsText(f);
+				
+			}
+			
+		})
+        function getHash(string) {
+            var charaters = string.split();
+            charaters.sort();
+            var sortedCharaters = charaters.join();
+            return CryptoJS.MD5(sortedCharaters + SALT);
+        }
+        function sprinkle(string) {
+            var characters;
+            var randomIndex;
+            var array = string.split("");
+            var result = [];
+            var counter = 0;
+            while (counter < array.length) {
+                result[counter * 2] = array[counter];
+                characters = CHARACTERS;
+                randomIndex = Math.floor(Math.random() * (characters.length - 1));
+                result[counter * 2 + 1] = characters.substr(randomIndex, 1);
+                counter++;
+            }
+            return result.join("");
+        }
+    
     "use strict";
 
     var strSettingsCheckBox = [
